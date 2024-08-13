@@ -43,6 +43,7 @@ dependencies:
   logger: ^2.4.0
   webview_flutter: 3.0.4
   flutter_screen_recording: ^2.0.14
+  screen_recorder: ^0.3.0
   screenshot: ^3.0.0
   path_provider: ^2.1.4
   permission_handler: ^11.3.1

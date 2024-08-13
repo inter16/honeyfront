@@ -5,6 +5,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_screen_recording/flutter_screen_recording.dart';
+import 'package:flutter/services.dart';
+
 
 class StreamingScreen extends StatefulWidget {
   final String? camName;
@@ -29,14 +31,15 @@ class _StreamingScreenState extends State<StreamingScreen> {
 
   Future<void> _requestPermissions() async {
     var videoStatus = await Permission.videos.status;
+    var photoStatus = await Permission.photos.status;
 
-    if (!videoStatus.isGranted) {
-      var statuses = await [Permission.videos].request();
+    if (!videoStatus.isGranted || !photoStatus.isGranted) {
+      var statuses = await [Permission.videos, Permission.photos].request();
 
-      if (statuses[Permission.videos]!.isDenied) {
+      if (statuses[Permission.videos]!.isDenied || statuses[Permission.photos]!.isDenied) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('비디오 권한이 필요합니다. 설정에서 권한을 부여해주세요.'),
+            content: Text('비디오 및 사진 권한이 필요합니다. 설정에서 권한을 부여해주세요.'),
             action: SnackBarAction(
               label: '설정으로 가기',
               onPressed: () {
@@ -112,19 +115,10 @@ class _StreamingScreenState extends State<StreamingScreen> {
   }
 
   Future<void> _startRecording() async {
-    final videoStatus = await Permission.videos.status;
-
-    if (!videoStatus.isGranted) {
-      final newStatus = await Permission.videos.request();
-      if (!newStatus.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('비디오 권한이 필요합니다.')),
-        );
-        return;
-      }
-    }
-
     try {
+      const platform = MethodChannel('your.channel.name/foreground_service');
+      await platform.invokeMethod('startForegroundService');
+
       bool start = await FlutterScreenRecording.startRecordScreen("Recording", titleNotification: "녹화 중", messageNotification: "화면을 녹화하고 있습니다.");
 
       if (!start) {
@@ -154,13 +148,24 @@ class _StreamingScreenState extends State<StreamingScreen> {
       String? path = await FlutterScreenRecording.stopRecordScreen;
 
       if (path != null) {
+        // 지정된 경로로 파일 복사
+        final directory = await getExternalStorageDirectory();
+        final videoDir = Directory('${directory!.path}/Videos/양봉장');
+        if (!videoDir.existsSync()) {
+          videoDir.createSync(recursive: true);
+        }
+        String newFilePath = '${videoDir.path}/recording_${DateTime.now().millisecondsSinceEpoch}.mp4';
+
+        // 파일 복사
+        File(path).copySync(newFilePath);
+
         setState(() {
           isRecording = false;
-          _outputFilePath = path;
+          _outputFilePath = newFilePath;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('녹화가 저장되었습니다: $path')),
+          SnackBar(content: Text('녹화가 저장되었습니다: $_outputFilePath')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

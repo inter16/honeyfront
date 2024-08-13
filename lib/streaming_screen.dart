@@ -7,7 +7,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_screen_recording/flutter_screen_recording.dart';
 import 'package:flutter/services.dart';
 
-
 class StreamingScreen extends StatefulWidget {
   final String? camName;
 
@@ -149,12 +148,11 @@ class _StreamingScreenState extends State<StreamingScreen> {
 
       if (path != null) {
         // 지정된 경로로 파일 복사
-        final directory = await getExternalStorageDirectory();
-        final videoDir = Directory('${directory!.path}/Videos/양봉장');
-        if (!videoDir.existsSync()) {
-          videoDir.createSync(recursive: true);
+        final directory = Directory('/storage/emulated/0/DCIM/honeycombo_Videos');
+        if (!directory.existsSync()) {
+          directory.createSync(recursive: true);
         }
-        String newFilePath = '${videoDir.path}/recording_${DateTime.now().millisecondsSinceEpoch}.mp4';
+        String newFilePath = '${directory.path}/recording_${DateTime.now().millisecondsSinceEpoch}.mp4';
 
         // 파일 복사
         File(path).copySync(newFilePath);
@@ -194,13 +192,12 @@ class _StreamingScreenState extends State<StreamingScreen> {
 
     final image = await _screenshotController.capture();
     if (image != null) {
-      final directory = await getExternalStorageDirectory();
-      final picturesDir = Directory('${directory!.path}/Pictures/양봉장');
-      if (!picturesDir.existsSync()) {
-        picturesDir.createSync(recursive: true);
+      final directory = Directory('/storage/emulated/0/DCIM/honeycombo_Pictures');
+      if (!directory.existsSync()) {
+        directory.createSync(recursive: true);
       }
       String fileName = 'screenshot_${DateTime.now().millisecondsSinceEpoch}.png';
-      String filePath = '${picturesDir.path}/$fileName';
+      String filePath = '${directory.path}/$fileName';
       File file = File(filePath);
       await file.writeAsBytes(image);
       ScaffoldMessenger.of(context).showSnackBar(

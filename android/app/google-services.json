@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "654720241048",
+    "project_id": "honeycombo-34fd9",
+    "storage_bucket": "honeycombo-34fd9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:654720241048:android:a278334716185efe0cefed",
+        "android_client_info": {
+          "package_name": "com.honeycombo.app.name"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdCPjDB422Bas1EEjbLnuLqc6P6q2UFoc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

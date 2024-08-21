@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:front/theme/box_decoration.dart';
 import 'package:front/theme/colors.dart';
 
 class AlarmSettingScreen extends StatefulWidget {
@@ -68,18 +69,7 @@ class _AlarmSettingScreenState extends State<AlarmSettingScreen> {
           children: [
             // 알림 사용 여부 스위치
             Container(
-              decoration: BoxDecoration(
-                color: whiteMyStyle1,
-                borderRadius: BorderRadius.circular(10.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+              decoration: containerBoxDecoration(),
               child: SwitchListTile(
                 title: const Text(
                   '알림 사용',
@@ -100,18 +90,7 @@ class _AlarmSettingScreenState extends State<AlarmSettingScreen> {
 
             // 방해 금지 모드 사용 여부 스위치
             Container(
-              decoration: BoxDecoration(
-                color: whiteMyStyle1,
-                borderRadius: BorderRadius.circular(10.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+              decoration: containerBoxDecoration(),
               child: SwitchListTile(
                 title: const Text(
                   '방해 금지 모드 사용',
@@ -132,18 +111,7 @@ class _AlarmSettingScreenState extends State<AlarmSettingScreen> {
 
             // 방해 금지 시간 설정
             Container(
-              decoration: BoxDecoration(
-                color: isDoNotDisturbEnabled ? whiteMyStyle1 : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(10.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+              decoration: containerBoxDecoration(),
               child: ListTile(
                 title: const Text(
                   '방해 금지 시간 설정',
@@ -162,37 +130,6 @@ class _AlarmSettingScreenState extends State<AlarmSettingScreen> {
               ),
             ),
             const SizedBox(height: 16.0),
-
-            // 시스템 알림 (푸시 알림) 사용 여부 스위치
-            // Container(
-            //   decoration: BoxDecoration(
-            //     color: whiteMyStyle1,
-            //     borderRadius: BorderRadius.circular(10.0),
-            //     boxShadow: [
-            //       BoxShadow(
-            //         color: Colors.black.withOpacity(0.1),
-            //         spreadRadius: 1,
-            //         blurRadius: 5,
-            //         offset: const Offset(0, 2),
-            //       ),
-            //     ],
-            //   ),
-            //   child: SwitchListTile(
-            //     title: const Text(
-            //       '시스템 알림 사용',
-            //       style: TextStyle(fontSize: 16),
-            //     ),
-            //     activeColor: yelloMyStyle1,
-            //     inactiveThumbColor: Colors.grey,
-            //     inactiveTrackColor: Colors.grey.shade400,
-            //     value: isSystemNotificationEnabled,
-            //     onChanged: (bool value) {
-            //       setState(() {
-            //         isSystemNotificationEnabled = value;
-            //       });
-            //     },
-            //   ),
-            // ),
           ],
         ),
       ),

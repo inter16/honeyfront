@@ -18,8 +18,8 @@ class AnalysisScreen extends StatefulWidget {
 
 class _AnalysisScreenState extends State<AnalysisScreen> {
   List<NotificationItem> dailyLogs = [];
-  Map<String, int> monthlyLogs = {};
-  Map<String, int> yearlyLogs = {};
+  List<NotificationItem> monthlyLogs = [];
+  List<NotificationItem> yearlyLogs = [];
   String _selectedPeriod = '일간';
   List<BarChartGroupData> barData = [];
   ScrollController _scrollController = ScrollController();
@@ -47,7 +47,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         final responseData = jsonDecode(response.body);
 
         setState(() {
+          // Clear previous logs
           dailyLogs.clear();
+          monthlyLogs.clear();
+          yearlyLogs.clear();
+
+          // Process daily logs
           responseData['day'].forEach((date, count) {
             final parts = date.split('-');
             if (parts.length == 4) {
@@ -56,7 +61,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 final month = int.parse(parts[1]);
                 final day = int.parse(parts[2]);
                 final hour = int.parse(parts[3]);
-
                 DateTime parsedDate = DateTime(year, month, day, hour);
                 dailyLogs.add(NotificationItem(parsedDate, count));
               } catch (e) {
@@ -67,23 +71,33 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             }
           });
 
-          monthlyLogs.clear();
+          // Process monthly logs
           responseData['month'].forEach((date, count) {
-            monthlyLogs[date] = count;
+            final parts = date.split('-');
+            if (parts.length == 3) {
+              try {
+                final year = int.parse(parts[0]);
+                final month = int.parse(parts[1]);
+                final day = int.parse(parts[2]);
+                DateTime parsedDate = DateTime(year, month, day);
+                monthlyLogs.add(NotificationItem(parsedDate, count));
+              } catch (e) {
+                print("Error parsing month data: $date, error: $e");
+              }
+            }
           });
 
-          yearlyLogs.clear();
+          // Process yearly logs
           final currentMonth = DateTime.now();
           for (int i = 0; i < 12; i++) {
             final monthToConsider =
             DateTime(currentMonth.year, currentMonth.month - i, 1);
             String formattedDate =
                 "${monthToConsider.year}-${monthToConsider.month.toString().padLeft(2, '0')}";
-            yearlyLogs[formattedDate] =
-                responseData['year'][formattedDate] ?? 0;
+            yearlyLogs.add(NotificationItem(monthToConsider, responseData['year'][formattedDate] ?? 0));
           }
 
-          _updateChartData(); // 차트 데이터 업데이트
+          _updateChartData(); // Update the chart data
         });
       } else if (response.statusCode == 400) {
         print('엑세스 토큰이 유효하지 않거나 만료되었습니다. 로그아웃합니다.');
@@ -127,7 +141,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             toY: hourlyCounts[index].toDouble(),
             color: Colors.black,
             width: 16,
-            borderRadius: BorderRadius.zero, // 아래 부분을 네모로 만듦
+            borderRadius: BorderRadius.zero, // 네모 모양 막대
           ),
         ],
       );
@@ -137,12 +151,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   List<BarChartGroupData> _getMonthlyData() {
     List<int> dailyCounts = List.filled(31, 0);
 
-    monthlyLogs.forEach((date, count) {
-      final parts = date.split('-');
-      if (parts.length == 3) {
-        final day = int.parse(parts[2]);
-        dailyCounts[day - 1] += count;
-      }
+    monthlyLogs.forEach((log) {
+      final day = log.time.day;
+      dailyCounts[day - 1] += log.count;
     });
 
     return List.generate(31, (index) {
@@ -153,7 +164,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             toY: dailyCounts[index].toDouble(),
             color: Colors.black,
             width: 16,
-            borderRadius: BorderRadius.zero, // 아래 부분을 네모로 만듦
+            borderRadius: BorderRadius.zero,
           ),
         ],
       );
@@ -163,14 +174,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   List<BarChartGroupData> _getYearlyData() {
     List<int> monthlyCounts = List.filled(12, 0);
 
-    final currentMonth = DateTime.now();
     for (int i = 0; i < 12; i++) {
-      final monthToConsider =
-      DateTime(currentMonth.year, currentMonth.month - i, 1);
-      String formattedDate =
-          "${monthToConsider.year}-${monthToConsider.month.toString().padLeft(2, '0')}";
-
-      monthlyCounts[11 - i] = yearlyLogs[formattedDate] ?? 0;
+      final monthData = yearlyLogs[i];
+      monthlyCounts[11 - i] = monthData.count;
     }
 
     return List.generate(12, (index) {
@@ -181,7 +187,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             toY: monthlyCounts[index].toDouble(),
             color: Colors.black,
             width: 16,
-            borderRadius: BorderRadius.zero, // 아래 부분을 네모로 만듦
+            borderRadius: BorderRadius.zero,
           ),
         ],
       );
@@ -259,12 +265,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                 );
                               },
                             ),
-                          ),
-                          topTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          rightTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
                           ),
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
@@ -362,7 +362,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               Expanded(
                 child: NotificationScreen(
                   selectedPeriod: _selectedPeriod,
-                  dailyLogs: dailyLogs,
+                  dailyLogs: dailyLogs,     // 일간 로그 데이터
+                  monthlyLogs: monthlyLogs, // 월간 로그 데이터
+                  yearlyLogs: yearlyLogs,   // 연간 로그 데이터
                 ),
               ),
             ],

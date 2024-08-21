@@ -25,6 +25,8 @@ class StreamingScreen extends StatefulWidget {
 class _StreamingScreenState extends State<StreamingScreen> {
   ScreenshotController _screenshotController = ScreenshotController();
   bool isRecording = false;
+  bool isDetecting = false;
+  bool isCollectorOpen = false;
   String? _outputFilePath;
   String? _ipAddress;
   late WebViewController _webViewController;
@@ -91,15 +93,47 @@ class _StreamingScreenState extends State<StreamingScreen> {
     }
   }
 
+  Future<void> _detectorActiveRequest() async {
+    final serialNumber = widget.serialNumber;
+
+    if (serialNumber == null) return;
+
+    // 서버로 말벌 탐지 활성화/비활성화 상태 전달
+    final url = Uri.parse('http://kulbul.iptime.org:8000/sensor/activate');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${Provider.of<AuthProvider>(context, listen: false).accessToken}',  // 전달받은 토큰 사용
+      },
+      body: jsonEncode({
+        'SN': serialNumber,
+        'operate': isDetecting,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      print('탐지 요청 성공: ${responseData['message']}');
+    } else {
+      final responseData = jsonDecode(response.body);
+      print('탐지 요청 실패: ${response.statusCode}');
+      print('Error message: ${responseData['message']}');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         backgroundColor: yelloMyStyle2,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: whiteMyStyle1,
           title: Text(
-            '${widget.camName} 카메라 실시간',
+            '${widget.camName} 실시간',
             style: TextStyle(
               fontSize: 18.0,
             ),
@@ -128,27 +162,43 @@ class _StreamingScreenState extends State<StreamingScreen> {
                 ),
               ),
               SizedBox(height: 16.0),
-              Container(
-                height: 250,
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  children: [
-                    GridButton(
-                      icon: isRecording
-                          ? Icons.stop_circle_outlined
-                          : Icons.video_camera_back_outlined,
-                      label: isRecording ? '녹화 중지' : '녹화 시작',
-                      onTap: () {
-                        isRecording ? _stopRecording() : _startRecording();
-                      },
-                    ),
-                    GridButton(
-                      icon: Icons.camera_enhance_outlined,
-                      label: '캡쳐',
-                      onTap: _captureScreenshot,
-                    ),
-                  ],
+              Expanded(
+                child: Container(
+                  height: 400,
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    children: [
+                      GridButton(
+                        icon: isRecording
+                            ? Icons.stop_circle_outlined
+                            : Icons.video_camera_back_outlined,
+                        label: isRecording ? '녹화 중지' : '녹화 시작',
+                        onTap: () {
+                          isRecording ? _stopRecording() : _startRecording();
+                        },
+                      ),
+                      GridButton(
+                        icon: Icons.camera_enhance_outlined,
+                        label: '캡쳐',
+                        onTap: _captureScreenshot,
+                      ),
+                      GridButton(
+                        icon: isDetecting
+                            ? Icons.start
+                            : Icons.stop,
+                        label: isDetecting ? '말벌 탐지 시작' : '말벌 탐지 중지',
+                        onTap: _toggleDetector,
+                      ),
+                      GridButton(
+                        icon: isCollectorOpen
+                            ? Icons.close
+                            : Icons.open_with,
+                        label: isCollectorOpen ? '포집기 닫기' : '포집기 열기',
+                        onTap: _toggleCollector,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -255,6 +305,29 @@ class _StreamingScreenState extends State<StreamingScreen> {
       );
     }
   }
+
+  void _toggleDetector() {
+    setState(() {
+      isDetecting = !isDetecting;
+    });
+    _detectorActiveRequest();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(isDetecting ? '말벌 탐지를 시작합니다.' : '말벌 탐지를 중지합니다.'),
+      ),
+    );
+  }
+
+  void _toggleCollector() {
+    setState(() {
+      isCollectorOpen = !isCollectorOpen;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(isCollectorOpen ? '포집기 열림' : '포집기 닫힘'),
+      ),
+    );
+  }
 }
 
 class GridButton extends StatelessWidget {
@@ -272,19 +345,30 @@ class GridButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.black,
-              width: 1.0,
-            )),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40),
-            SizedBox(height: 8),
-            Text(label, style: TextStyle(fontSize: 16)),
-          ],
+      child: Card(
+        color: whiteMyStyle1, // 원하는 배경색 적용
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0), // 내부 패딩 추가
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center, // 세로축 중앙 정렬
+            children: [
+              Icon(
+                icon,
+                color: yelloMyStyle1, // 원하는 아이콘 색상 적용
+                size: 40, // 아이콘 크기
+              ),
+              SizedBox(height: 8), // 아이콘과 텍스트 사이의 간격
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'PretendardBold'
+                ), // 텍스트 스타일
+                textAlign: TextAlign.center, // 텍스트 가운데 정렬
+              ),
+            ],
+          ),
         ),
       ),
     );

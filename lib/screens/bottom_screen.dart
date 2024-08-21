@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:front/screens/historys/analysis_screen.dart';
 import 'package:front/screens/home/home_screen.dart';
+import 'package:front/screens/news/news_screen.dart';
 import 'package:front/screens/profile/profile_screen.dart';
 import 'package:front/theme/colors.dart';
 
@@ -18,6 +19,7 @@ class _BottomScreenState extends State<BottomScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     AnalysisScreen(),
+    NewsScreen(),
     ProfileScreen()
   ];
 
@@ -35,9 +37,10 @@ class _BottomScreenState extends State<BottomScreen> {
 
         },
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.camera_alt), label:'내 양봉장'),
+          BottomNavigationBarItem(icon: Icon(Icons.camera_alt_outlined), label:'내 양봉장'),
           BottomNavigationBarItem(icon: Icon(Icons.analytics_outlined), label:'분석'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label:'프로필'),
+          BottomNavigationBarItem(icon: Icon(Icons.local_post_office_outlined), label: '양봉 소식'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label:'프로필'),
         ],
       ),
     );

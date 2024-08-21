@@ -3,6 +3,7 @@ import 'package:front/screens/historys/analysis_screen.dart';
 import 'package:front/screens/historys/imagelog_screen.dart';
 import 'package:front/screens/profile/alarm_screen.dart';
 import 'package:front/screens/profile/alarmsetting_sceen.dart';
+import 'package:front/screens/profile/setting_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -63,6 +64,7 @@ GoRouter createRouter(BuildContext context) {
       // GoRoute(path: '/myprofile', builder: (context, state) => MyprofileScreen()),
       GoRoute(path: '/imagelog', builder: (context, state) => ImagelogScreen()),
       GoRoute(path: '/analysis', builder: (context, state) => AnalysisScreen()),
+      GoRoute(path: '/setting', builder: (context, state) => SettingScreen()),
       GoRoute(path: '/location', builder: (context, state) => LocationScreen()),
       GoRoute(path: '/alarm', builder: (context, state) => AlarmScreen()),
       GoRoute(path: '/alarmsetting', builder: (context, state) => AlarmSettingScreen()),

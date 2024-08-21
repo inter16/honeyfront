@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:front/theme/box_decoration.dart';
 import 'package:front/theme/colors.dart';
 import 'package:go_router/go_router.dart';
 
@@ -131,6 +132,7 @@ class HistoryListWidget extends StatelessWidget {
                 imageLog[index]['image'],
                 fit: BoxFit.fill,
               ),
+              decoration: containerBoxDecoration(),
             ),
             title: Text(imageLog[index]['time']),
             onTap: () {

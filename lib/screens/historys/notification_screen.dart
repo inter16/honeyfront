@@ -3,8 +3,15 @@ import 'package:flutter/material.dart';
 class NotificationScreen extends StatelessWidget {
   final String selectedPeriod;
   final List<NotificationItem> dailyLogs;
+  final List<NotificationItem> monthlyLogs;
+  final List<NotificationItem> yearlyLogs;
 
-  NotificationScreen({required this.selectedPeriod, required this.dailyLogs});
+  NotificationScreen({
+    required this.selectedPeriod,
+    required this.dailyLogs,
+    required this.monthlyLogs,
+    required this.yearlyLogs,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +26,12 @@ class NotificationScreen extends StatelessWidget {
         break;
       case '월간':
         logs = _getMonthlyLogs(); // 월간 로그 가져오기
-        logFormatter = (item) =>
-        "${item.time.day}일에 5마리 이상 발견 ${item.count}회";
+        logFormatter = (item) => "${item.time.day}일에 총 ${item.count}마리 발견";
         break;
       case '연간':
         logs = _getYearlyLogs(); // 연간 로그 가져오기
         logFormatter = (item) =>
-        "${item.time.year}년 ${item.time.month}월에 5마리 이상 발견 ${item.count}회";
+        "${item.time.year}년 ${item.time.month}월에 총 ${item.count}마리 발견";
         break;
       default:
         logs = _getHourlyMaxLogs(); // 기본적으로 시간대별 로그
@@ -63,50 +69,36 @@ class NotificationScreen extends StatelessWidget {
     return hourlyMaxLogs;
   }
 
-  // 월간 로그 가져오기
+  // 월간 로그 처리 (monthlyLogs를 사용)
   List<NotificationItem> _getMonthlyLogs() {
-    final today = DateTime.now();
-    final monthlyLogs = dailyLogs.where((log) =>
-    log.time.year == today.year && log.time.month == today.month);
-
-    List<NotificationItem> filteredLogs = [];
     Map<DateTime, int> dailyCounts = {};
 
+    // 날짜별로 총 마리 수 계산
     monthlyLogs.forEach((log) {
-      if (log.count >= 5) {
-        final dateOnly = DateTime(log.time.year, log.time.month, log.time.day);
-        dailyCounts.update(dateOnly, (value) => value + 1, ifAbsent: () => 1);
-      }
+      final dateOnly = DateTime(log.time.year, log.time.month, log.time.day);
+      dailyCounts.update(dateOnly, (value) => value + log.count, ifAbsent: () => log.count);
     });
 
-    dailyCounts.forEach((date, count) {
-      filteredLogs.add(NotificationItem(date, count));
-    });
-
-    return filteredLogs;
+    // 날짜별 총 마리 수 기반으로 NotificationItem 생성
+    return dailyCounts.entries
+        .map((entry) => NotificationItem(entry.key, entry.value))
+        .toList();
   }
 
-  // 연간 로그 가져오기
+  // 연간 로그 처리 (yearlyLogs를 사용)
   List<NotificationItem> _getYearlyLogs() {
-    final today = DateTime.now();
-    final yearlyLogs = dailyLogs.where((log) =>
-    log.time.year == today.year); // 해당 년도의 로그 가져오기
-
-    List<NotificationItem> filteredLogs = [];
     Map<DateTime, int> monthlyCounts = {};
 
+    // 월별로 총 마리 수 계산
     yearlyLogs.forEach((log) {
-      if (log.count >= 5) {
-        final dateOnly = DateTime(log.time.year, log.time.month, 1); // 월별로 묶기
-        monthlyCounts.update(dateOnly, (value) => value + 1, ifAbsent: () => 1);
-      }
+      final monthOnly = DateTime(log.time.year, log.time.month, 1);
+      monthlyCounts.update(monthOnly, (value) => value + log.count, ifAbsent: () => log.count);
     });
 
-    monthlyCounts.forEach((date, count) {
-      filteredLogs.add(NotificationItem(date, count));
-    });
-
-    return filteredLogs;
+    // 월별 총 마리 수 기반으로 NotificationItem 생성
+    return monthlyCounts.entries
+        .map((entry) => NotificationItem(entry.key, entry.value))
+        .toList();
   }
 }
 

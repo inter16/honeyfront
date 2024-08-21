@@ -239,17 +239,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: TextStyle(fontSize: 18),
                   ),
                 )
-                //     : ListView.builder(
-                //   itemCount: widget.cameras.length,
-                //   itemBuilder: (context, index) {
-                //     final camera = widget.cameras[index];
-                //     return ListTile(
-                //       title: Text(camera['cameraName'] ?? 'Unknown'),
-                //       subtitle: Text('SN: ${camera['serialNumber']}'),
-                //       leading: Icon(Icons.camera_alt),
-                //     );
-                //   },
-                // ),
                 : ListView.builder(
                   itemCount: widget.cameras.length,
                   itemBuilder: (context, index) {

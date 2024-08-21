@@ -169,7 +169,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 )
             ),
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/setting');
+                },
                 icon: Icon(
                   Icons.settings,
                   color: yelloMyStyle1,
@@ -219,47 +221,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Column(
                   children: <Widget>[
-                    Expanded(
-                      child: Center(
-                        child: ListTile(
-                          leading: Icon(Icons.home, size: 30.0,),
-                          title: Text('양봉장 장소 관리',
-                            style: TextStyle(fontFamily: 'Pretendard', fontSize: 18.0,),
-                          ),
-                          trailing: Icon(Icons.arrow_forward_ios, size: 20.0,),
-                          onTap: () {
-                            context.push('/location');
-                          },
-                        ),
-                      ),
+                    buildCustomListTile(
+                      leadingIcon: Icons.home,
+                      title: '양봉장 장소 관리',
+                      onTap: () {
+                        context.push('/location');
+                      },
                     ),
-                    Expanded(
-                      child: Center(
-                        child: ListTile(
-                          leading: Icon(Icons.notifications_active_outlined, size: 30.0,),
-                          title: Text('알림 관리',
-                            style: TextStyle(fontFamily: 'Pretendard', fontSize: 18.0,),
-                          ),
-                          trailing: Icon(Icons.arrow_forward_ios, size: 20.0,),
-                          onTap: () {
-                            context.push('/alarm');
-                          },
-                        ),
-                      ),
+                    buildCustomListTile(
+                      leadingIcon: Icons.notifications_active_outlined,
+                      title: '알림 관리',
+                      onTap: () {
+                        context.push('/alarm');
+                      },
                     ),
-                    Expanded(
-                      child: Center(
-                        child: ListTile(
-                          leading: Icon(Icons.support_agent, size: 30.0,),
-                          title: Text('고객 지원',
-                            style: TextStyle(fontFamily: 'Pretendard', fontSize: 18.0,),
-                          ),
-                          trailing: Icon(Icons.arrow_forward_ios, size: 20.0,),
-                          onTap: () {
-                            print("check");
-                          },
-                        ),
-                      ),
+                    buildCustomListTile(
+                        leadingIcon: Icons.support_agent,
+                        title: '고객 지원',
+                        onTap: () {
+                          print("check");
+                        },
                     ),
                   ],
                 ),
@@ -270,4 +251,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
+
+
+Widget buildCustomListTile({
+  required IconData leadingIcon,
+  required String title,
+  required VoidCallback onTap,
+  IconData? trailingIcon = Icons.arrow_forward_ios,
+  double leadingIconSize = 30.0,
+  double trailingIconSize = 20.0,
+  TextStyle? titleStyle,
+}) {
+  return Expanded(
+    child: Center(
+      child: ListTile(
+        leading: Icon(leadingIcon, size: leadingIconSize),
+        title: Text(
+          title,
+          style: titleStyle ?? const TextStyle(fontFamily: 'Pretendard', fontSize: 18.0),
+        ),
+        trailing: Icon(trailingIcon, size: trailingIconSize),
+        onTap: onTap,
+      ),
+    ),
+  );
 }

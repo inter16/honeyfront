@@ -44,7 +44,7 @@ class NotificationScreen extends StatelessWidget {
       itemCount: logs.length,
       itemBuilder: (context, index) {
         return ListTile(
-          leading: const Icon(Icons.bug_report, color: Colors.red),
+          leading: const Icon(Icons.notifications_active_outlined, color: Colors.red),
           title: Text(
             logFormatter(logs[index]),
             style: const TextStyle(fontSize: 16),

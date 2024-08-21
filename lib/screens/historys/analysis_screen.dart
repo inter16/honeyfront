@@ -266,6 +266,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                               },
                             ),
                           ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false), // 오른쪽 제목 숨김
+                          ),
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false), // 위쪽 제목 숨김
+                          ),
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
@@ -302,11 +308,8 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                 } else if (_selectedPeriod == '연간') {
                                   final currentMonth = DateTime.now();
                                   final monthToConsider = DateTime(
-                                      currentMonth.year,
-                                      currentMonth.month - (11 - value.toInt()),
-                                      1);
-                                  final monthLabel =
-                                      "${monthToConsider.month}월";
+                                      currentMonth.year, currentMonth.month - (11 - value.toInt()), 1);
+                                  final monthLabel = "${monthToConsider.month}월";
 
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 8.0),

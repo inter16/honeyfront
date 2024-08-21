@@ -6,20 +6,25 @@ import 'package:front/theme/colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'; // Firebase Messaging import
 
-void sendLoginInRequest(BuildContext context, String id, String pw, Function onError) async {
+void sendLoginInRequest(BuildContext context, String id, String pw, String fcmToken, Function onError) async {
   final url = Uri.parse('http://kulbul.iptime.org:8000/user/signin');
+
+  print('11111111111111111111');
+  print(fcmToken);
 
   final response = await http.patch(
     url,
     headers: {
       'accept': 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
     },
-    body: {
+    body: jsonEncode({
       'username': id,
       'password': pw,
-    },
+      'fcm': fcmToken,  // FCM 토큰 추가
+    }),
   );
 
   if (response.statusCode == 200) {
@@ -57,11 +62,20 @@ class _LoginScreenState extends State<LoginScreen> {
   Color _suffixIconColor = blackMyStyle2;
   String? _phoneNumberError;
   String? _passwordError;
+  String? _fcmToken;
 
   @override
   void initState() {
     super.initState();
     _textEditingController.addListener(_validatePhoneNumber);
+
+    // FCM 토큰 가져오기
+    FirebaseMessaging.instance.getToken().then((token) {
+      setState(() {
+        _fcmToken = token;
+        print("FCM 토큰: $_fcmToken");
+      });
+    });
   }
 
   @override
@@ -95,11 +109,16 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _login(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() && _fcmToken != null) {
+      print("-------------");
+      print(_fcmToken);
+      print("-------------");
+
       sendLoginInRequest(
         context,
         _textEditingController.text,
         _passwordController.text,
+        _fcmToken!,  // FCM 토큰 전달
             (String errorMsg, bool isPasswordError, bool isPhoneError) {
           setState(() {
             if (isPasswordError) {
@@ -111,6 +130,11 @@ class _LoginScreenState extends State<LoginScreen> {
           _formKey.currentState!.validate(); // Revalidate the form to show error messages
         },
       );
+    } else {
+      // FCM 토큰이 null인 경우에 대한 처리 (예: 네트워크 문제 등)
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('FCM 토큰을 가져오는 중 오류가 발생했습니다.')),
+      );
     }
   }
 
@@ -121,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         backgroundColor: ClearMyStyle1,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: yelloMyStyle2,
       body: LayoutBuilder(
         builder: (context, constraints) {
           return Column(
@@ -235,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                       ),
-                      
+
                       Expanded(
                         child: Container(
                           alignment: Alignment.bottomCenter,
@@ -256,9 +280,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-
-
-              // const SizedBox(height: 16.0), // Add some spacing at the bottom
             ],
           );
         },

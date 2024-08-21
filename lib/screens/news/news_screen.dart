@@ -114,7 +114,7 @@ class _NewsScreenState extends State<NewsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
               child: Text(
                 '한국양봉신문 - 많이 본 뉴스',
                 style: TextStyle(

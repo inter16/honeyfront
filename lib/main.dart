@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:front/route/router.dart';
 import 'package:front/screens/splash_screen.dart';
@@ -17,10 +18,10 @@ import 'states/camera_provider.dart';
 
 void main()  async{
   WidgetsFlutterBinding.ensureInitialized();
-  // KakaoSdk.init(
-  //   nativeAppKey: '9e6c07a96429e065ae18309132c74a9e',
-  //   javaScriptAppKey: '0e255737a245c2acadecc73750f737ca',
-  // );
+  KakaoSdk.init(
+    nativeAppKey: '9e6c07a96429e065ae18309132c74a9e',
+    javaScriptAppKey: '0e255737a245c2acadecc73750f737ca',
+  );
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -35,25 +36,36 @@ void main()  async{
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  // Widget build(BuildContext context) {
-  //
-  //   return MaterialApp.router(
-  //     theme: ThemeData(
-  //       fontFamily: 'PretendardRegular',
-  //       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-  //         selectedItemColor: yelloMyStyle1,
-  //         unselectedItemColor: blackMyStyle2,
-  //         type: BottomNavigationBarType.fixed,
-  //       ),
-  //     ),
-  //     debugShowCheckedModeBanner: false,
-  //     routerConfig: createRouter(context), // 분리된 라우터 설정을 사용,
-  //   );
-  // }
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  String? _fcmToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _getToken();
+  }
+
+  void _getToken() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    // 토큰 가져오기
+    String? token = await messaging.getToken();
+    setState(() {
+      _fcmToken = token;
+    });
+
+    // 토큰 값 콘솔에 출력
+    print('FCM 토큰: $_fcmToken');
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       // Firebase 초기화와 같은 비동기 작업을 기다림

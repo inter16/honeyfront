@@ -12,7 +12,7 @@ class IntroScreen extends StatelessWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
+      backgroundColor: yelloMyStyle2,
       body: SingleChildScrollView(
         child: ConstrainedBox(
           constraints: BoxConstraints(
@@ -72,7 +72,9 @@ class IntroScreen extends StatelessWidget {
                         width: double.infinity,
                         height: 50,
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+
+                          },
                           style: TextButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),

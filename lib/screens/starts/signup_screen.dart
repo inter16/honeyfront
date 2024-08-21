@@ -140,7 +140,7 @@ class _SignupScreenState extends State<SignupScreen> {
       appBar: AppBar(
         backgroundColor: ClearMyStyle1,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: yelloMyStyle2,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 32.0),
         child: Column(

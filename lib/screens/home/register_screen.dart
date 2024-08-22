@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:front/utils/logger.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,44 +19,40 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final _formKey = GlobalKey<FormState>(); // 폼의 상태를 관리할 키
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _serialNumberController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
 
-  late int _cameraCount; // 카메라 이름 자동 생성에 사용할 카운트
+  late int _cameraCount;
 
   @override
   void initState() {
     super.initState();
-    _cameraCount = widget.cameras.length + 1; // 카메라 목록의 개수를 기준으로 카운트 설정
+    _cameraCount = widget.cameras.length + 1;
   }
 
   void registerRequest(BuildContext context, String number, String name) async {
-    // 요청을 보낼 URL
     final url = Uri.parse('http://kulbul.iptime.org:8000/sensor/register');
 
-    // POST 요청
     final response = await http.patch(
       url,
       headers: {
-        'accept': 'application/json', // 응답 헤더 설정
-        'Content-Type': 'application/json', // 요청 헤더 설정
-        'Authorization': 'Bearer ${Provider.of<AuthProvider>(context, listen: false).accessToken}', // 엑세스 토큰 추가
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${Provider.of<AuthProvider>(context, listen: false).accessToken}',
       },
       body: jsonEncode({
-        'SN': number, // 폼 데이터
-        'name': name, // 폼 데이터
+        'SN': number,
+        'name': name,
       }),
     );
 
-    // 응답 처리
     if (response.statusCode == 201) {
       print('카메라 등록 성공: ${response.body}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('카메라가 성공적으로 등록되었습니다.')),
       );
 
-      // Provider를 통해 HomeScreen의 상태를 업데이트
       Provider.of<CameraProvider>(context, listen: false).addCamera({
         'serialNumber': number,
         'cameraName': name,
@@ -66,31 +62,70 @@ class _RegisterScreenState extends State<RegisterScreen> {
         widget.cameras.add({
           'serialNumber': number,
           'cameraName': name,
-        }); // 새로 등록된 카메라를 목록에 추가
+        });
       });
-      // 입력 필드 초기화
+
       _serialNumberController.clear();
       _nameController.clear();
-    } else if (response.statusCode == 400) {
-      print('엑세스 토큰 오류: ${response.statusCode}');
+    } else {
+      handleErrors(context, response);
+    }
+  }
+
+  void unregisterRequest(BuildContext context, String number) async {
+    final url = Uri.parse('http://kulbul.iptime.org:8000/sensor/unregister');
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${Provider.of<AuthProvider>(context, listen: false).accessToken}',
+        },
+        body: jsonEncode({
+          'SN': number,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        print('카메라 해제 성공: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('카메라가 성공적으로 등록 해제되었습니다.')));
+
+        setState(() {
+          widget.cameras.removeWhere((camera) => camera['serialNumber'] == number);
+        });
+
+        Provider.of<CameraProvider>(context, listen: false).setCameras(widget.cameras);
+      } else {
+        handleErrors(context, response);
+      }
+    } catch (error) {
+      // 네트워크 오류 등 다른 예외 상황 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('서버와 통신 중 오류가 발생했습니다. 다시 시도하세요.')),
+      );
+      print('에러 발생: $error');
+    }
+  }
+
+  void handleErrors(BuildContext context, http.Response response) {
+    if (response.statusCode == 400) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('엑세스 토큰 오류: 다시 로그인하세요.')),
       );
     } else if (response.statusCode == 404) {
-      print('카메라 시리얼 번호를 찾을 수 없음: ${response.statusCode}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('카메라 시리얼 번호를 찾을 수 없습니다.')),
       );
     } else if (response.statusCode == 409) {
-      print('이미 등록된 카메라: ${response.statusCode}');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('이미 등록된 카메라입니다.')),
+        SnackBar(content: Text('이미 등록/해제된 카메라입니다.')),
       );
     } else {
-      print('카메라 등록 실패: ${response.statusCode}');
-      print(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('카메라 등록 실패: ${response.statusCode}')),
+        SnackBar(content: Text('카메라 등록/해제 실패: ${response.statusCode}')),
       );
     }
   }
@@ -102,11 +137,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (name.isEmpty) {
         name = 'Cam$_cameraCount';
-        _cameraCount++; // 다음 카메라 이름을 위해 카운트 증가
+        _cameraCount++;
       }
 
-      registerRequest(context, serialNumber, name); // 서버에 카메라 등록 요청
+      registerRequest(context, serialNumber, name);
     }
+  }
+
+  void _showUnregisterDialog(BuildContext context, Map<String, String> camera) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("카메라 삭제"),
+          content: Text("카메라 '${camera['cameraName']}'을(를) 삭제하시겠습니까?"),
+          actions: [
+            TextButton(
+              child: Text("취소"),
+              onPressed: () {
+                context.pop();
+              },
+            ),
+            TextButton(
+              child: Text("예"),
+              onPressed: () {
+                unregisterRequest(context, camera['serialNumber']!);
+                context.pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -131,7 +193,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 시리얼 번호 입력 필드
                     TextFormField(
                       controller: _serialNumberController,
                       decoration: InputDecoration(
@@ -139,7 +200,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         hintText: '123456789012',
                         border: UnderlineInputBorder(),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: yelloMyStyle1), // 포커스 시 색상 변경
+                          borderSide: BorderSide(color: yelloMyStyle1),
                         ),
                         enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: blackMyStyle2),
@@ -160,8 +221,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                     ),
                     const SizedBox(height: 16.0),
-      
-                    // 이름 입력 필드
                     TextFormField(
                       controller: _nameController,
                       decoration: const InputDecoration(
@@ -170,7 +229,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         helperText: '이름은 미입력 시 자동으로 부여됩니다.',
                         border: UnderlineInputBorder(),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: yelloMyStyle1), // 포커스 시 색상 변경
+                          borderSide: BorderSide(color: yelloMyStyle1),
                         ),
                         enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: blackMyStyle2),
@@ -181,8 +240,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ],
                     ),
                     const SizedBox(height: 16.0),
-      
-                    // 등록 버튼
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -212,14 +269,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               SizedBox(height: 24.0),
-      
               Container(
                 height: 1.0,
                 color: yelloMyStyle1,
               ),
-      
               SizedBox(height: 24.0),
-      
               Container(
                 height: 40.0,
                 alignment: Alignment.centerLeft,
@@ -239,34 +293,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: TextStyle(fontSize: 18),
                   ),
                 )
-                : ListView.builder(
+                    : ListView.builder(
                   itemCount: widget.cameras.length,
                   itemBuilder: (context, index) {
                     final camera = widget.cameras[index];
                     return Card(
-                      color: whiteMyStyle1, // 카드 배경색 지정
+                      color: whiteMyStyle1,
                       margin: const EdgeInsets.symmetric(vertical: 8.0),
                       child: ListTile(
                         leading: Icon(
                           Icons.camera_alt,
-                          color: yelloMyStyle1, // 아이콘 색상 지정
-                          size: 36, // 아이콘 크기 지정
+                          color: yelloMyStyle1,
+                          size: 36,
                         ),
                         title: Text(
                           camera['cameraName'] ?? 'Unknown',
-                          style: const TextStyle(fontSize: 18), // 제목 텍스트 스타일 지정
+                          style: const TextStyle(fontSize: 18),
                         ),
                         subtitle: Text(
                           'SN: ${camera['serialNumber']}',
-                          style: const TextStyle(fontSize: 14, color: Colors.grey), // 부제목 텍스트 스타일 지정
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.grey),
                         ),
                         onTap: () {
                           // 클릭 시 동작 정의
                         },
+                        onLongPress: () {
+                          _showUnregisterDialog(context, camera);
+                        },
                       ),
                     );
                   },
-                )
+                ),
               ),
             ],
           ),
@@ -274,7 +332,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-
-
-
 }
+

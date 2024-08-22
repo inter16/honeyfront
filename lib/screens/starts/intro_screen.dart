@@ -43,9 +43,9 @@ class IntroScreen extends StatelessWidget {
                       Container(
                         width: double.infinity,
                         height: 50,
-                        child: TextButton(
+                        child: ElevatedButton(
                           onPressed: () => context.push('/login'),
-                          style: TextButton.styleFrom(
+                          style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -71,11 +71,11 @@ class IntroScreen extends StatelessWidget {
                       Container(
                         width: double.infinity,
                         height: 50,
-                        child: TextButton(
+                        child: ElevatedButton(
                           onPressed: () {
 
                           },
-                          style: TextButton.styleFrom(
+                          style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -106,9 +106,9 @@ class IntroScreen extends StatelessWidget {
                       Container(
                         width: double.infinity,
                         height: 50,
-                        child: TextButton(
+                        child: ElevatedButton(
                           onPressed: () => context.push('/signup'),
-                          style: TextButton.styleFrom(
+                          style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),

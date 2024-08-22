@@ -239,7 +239,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
                           Container(
                             width: 320, height: 50,
-                            child: TextButton(
+                            child: ElevatedButton(
                               onPressed: () {
                                 setState(() {
                                   _phoneNumberError = null; // 오류 메시지 초기화
@@ -253,7 +253,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                       _setError);
                                 }
                               },
-                              style: TextButton.styleFrom(
+                              style: ElevatedButton.styleFrom(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8)
                                 ),

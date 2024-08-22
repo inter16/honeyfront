@@ -11,7 +11,7 @@ import 'package:firebase_messaging/firebase_messaging.dart'; // Firebase Messagi
 void sendLoginInRequest(BuildContext context, String id, String pw, String fcmToken, Function onError) async {
   final url = Uri.parse('http://kulbul.iptime.org:8000/user/signin');
 
-  print('11111111111111111111');
+  print('---login_screen - sendLoginInRequest---');
   print(fcmToken);
 
   final response = await http.patch(
@@ -228,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     Container(
                                       width: double.infinity,
                                       height: 50,
-                                      child: TextButton(
+                                      child: ElevatedButton(
                                         onPressed: () {
                                           setState(() {
                                             _phoneNumberError = null;
@@ -236,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           });
                                           _login(context);
                                         },
-                                        style: TextButton.styleFrom(
+                                        style: ElevatedButton.styleFrom(
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(8),
                                           ),

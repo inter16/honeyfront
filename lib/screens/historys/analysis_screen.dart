@@ -38,8 +38,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',
-          'Authorization':
-          'Bearer ${Provider.of<AuthProvider>(context, listen: false).accessToken}',
+          'Authorization': 'Bearer ${Provider.of<AuthProvider>(context, listen: false).accessToken}',
         },
       );
 

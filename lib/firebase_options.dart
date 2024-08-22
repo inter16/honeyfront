@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -51,7 +42,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBdCPjDB422Bas1EEjbLnuLqc6P6q2UFoc',
-    appId: '1:654720241048:android:a278334716185efe0cefed',
+    appId: '1:654720241048:android:563cf1433fd93f180cefed',
     messagingSenderId: '654720241048',
     projectId: 'honeycombo-34fd9',
     storageBucket: 'honeycombo-34fd9.appspot.com',
@@ -59,10 +50,40 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCYT_s4ja3AHktQ7xo41D4ivTMa9v9b0dc',
-    appId: '1:654720241048:ios:e2b7391c2bb219610cefed',
+    appId: '1:654720241048:ios:ca80dbd4346c5d720cefed',
     messagingSenderId: '654720241048',
     projectId: 'honeycombo-34fd9',
     storageBucket: 'honeycombo-34fd9.appspot.com',
     iosBundleId: 'com.honeycombo.app.name',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyA_spMSEtHq0gv3NMTknP9KDnJYVVOiq9c',
+    appId: '1:654720241048:web:e5b0e2818de1d00c0cefed',
+    messagingSenderId: '654720241048',
+    projectId: 'honeycombo-34fd9',
+    authDomain: 'honeycombo-34fd9.firebaseapp.com',
+    storageBucket: 'honeycombo-34fd9.appspot.com',
+    measurementId: 'G-PH8H6FPE0D',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCYT_s4ja3AHktQ7xo41D4ivTMa9v9b0dc',
+    appId: '1:654720241048:ios:ca80dbd4346c5d720cefed',
+    messagingSenderId: '654720241048',
+    projectId: 'honeycombo-34fd9',
+    storageBucket: 'honeycombo-34fd9.appspot.com',
+    iosBundleId: 'com.honeycombo.app.name',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyA_spMSEtHq0gv3NMTknP9KDnJYVVOiq9c',
+    appId: '1:654720241048:web:e4eecc8a871527620cefed',
+    messagingSenderId: '654720241048',
+    projectId: 'honeycombo-34fd9',
+    authDomain: 'honeycombo-34fd9.firebaseapp.com',
+    storageBucket: 'honeycombo-34fd9.appspot.com',
+    measurementId: 'G-PYPWVYD7FX',
+  );
+
 }

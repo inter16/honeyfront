@@ -28,16 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   );
 
-  void _showNotification() async {
-    await _local.show(
-      0,
-      "타이틀이 보여지는 영역입니다.",
-      "컨텐츠 내용이 보여지는 영역입니다.\ntest show()",
-      details,
-      payload: "tyger://",
-    );
-  }
-
   void _permissionWithNotification() async {
     if (await Permission.notification.isDenied &&
         !await Permission.notification.isPermanentlyDenied) {
@@ -45,20 +35,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  final FlutterLocalNotificationsPlugin _local = FlutterLocalNotificationsPlugin();
-
-  void _initialization() async {
-    AndroidInitializationSettings android =
-    const AndroidInitializationSettings("@mipmap/ic_launcher");
-    InitializationSettings settings = InitializationSettings(android: android);
-    await _local.initialize(settings);
-  }
 
   @override
   void initState() {
     super.initState();
     _permissionWithNotification();
-    _initialization();
     _loadCameraList(); // 카메라 목록 로드
   }
 

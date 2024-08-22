@@ -14,4 +14,17 @@ class CameraProvider with ChangeNotifier {
     _cameras.add(camera);
     notifyListeners();
   }
+
+  void removeCamera(Map<String, String> camera) {
+    _cameras.remove(camera);
+    notifyListeners();
+  }
+
+  // 특정 인덱스를 기준으로 카메라 삭제하는 방법
+  void removeCameraAt(int index) {
+    if (index >= 0 && index < _cameras.length) {
+      _cameras.removeAt(index);
+      notifyListeners();
+    }
+  }
 }

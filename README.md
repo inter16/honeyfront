@@ -1,6 +1,7 @@
-# front
+# Real-Time Anomaly Detection System Based on Wasp Detection
+SK Telecom FLY AI Challenger 5th Cohort, June 2024 - August 2024 (Excellence Award, 3rd)
 
-A new Flutter project.
+Flutter project
 
 ## Getting Started
 
